@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<iq:manifest version="3" xmlns:iq="http://www.garmin.com/xml/connectiq">
+    <iq:application id="6a8c5d3e-1f2a-4b5c-9e7d-3f1a2b4c5d6e" type="widget" name="@Strings.AppName" entry="AffectApp" launcherIcon="@Drawables.LauncherIcon" minApiLevel="3.2.0">
+        <iq:products>
+            <!-- Approach -->
+            <iq:product id="approachs50"/>
+            <iq:product id="approachs7042mm"/>
+            <iq:product id="approachs7047mm"/>
+            
+            <!-- D2 -->
+            <iq:product id="d2air"/>
+            <iq:product id="d2airx10"/>
+            <iq:product id="d2mach1"/>
+            <iq:product id="d2mach2"/>
+            
+            <!-- Descent -->
+            <iq:product id="descentg2"/>
+            
+            <!-- Enduro -->
+            <iq:product id="enduro3"/>
+            
+            <!-- Epix -->
+            <iq:product id="epix2"/>
+            <iq:product id="epix2pro42mm"/>
+            <iq:product id="epix2pro47mm"/>
+            <iq:product id="epix2pro51mm"/>
+            
+            <!-- Fenix -->
+            <iq:product id="fenix7"/>
+            <iq:product id="fenix7pro"/>
+            <iq:product id="fenix7s"/>
+            <iq:product id="fenix7spro"/>
+            <iq:product id="fenix7x"/>
+            <iq:product id="fenix7xpro"/>
+            <iq:product id="fenix843mm"/>
+            <iq:product id="fenix847mm"/>
+            <iq:product id="fenix8pro47mm"/>
+            <iq:product id="fenix8solar47mm"/>
+            <iq:product id="fenix8solar51mm"/>
+            <iq:product id="fenixe"/>
+            
+            <!-- Forerunner -->
+            <iq:product id="fr165"/>
+            <iq:product id="fr165m"/>
+            <iq:product id="fr255"/>
+            <iq:product id="fr255m"/>
+            <iq:product id="fr255s"/>
+            <iq:product id="fr255sm"/>
+            <iq:product id="fr265"/>
+            <iq:product id="fr265s"/>
+            <iq:product id="fr57042mm"/>
+            <iq:product id="fr57047mm"/>
+            <iq:product id="fr955"/>
+            <iq:product id="fr965"/>
+            <iq:product id="fr970"/>
+            
+            <!-- Instinct -->
+            <iq:product id="instinct3amoled45mm"/>
+            <iq:product id="instinct3amoled50mm"/>
+            <iq:product id="instinct3solar45mm"/>
+            <iq:product id="instinctcrossoveramoled"/>
+            <iq:product id="instincte40mm"/>
+            <iq:product id="instincte45mm"/>
+            
+            <!-- MARQ -->
+            <iq:product id="marq2"/>
+            <iq:product id="marq2aviator"/>
+            
+            <!-- Venu -->
+            <iq:product id="venu2"/>
+            <iq:product id="venu2plus"/>
+            <iq:product id="venu2s"/>
+            <iq:product id="venu3"/>
+            <iq:product id="venu3s"/>
+            <iq:product id="venu441mm"/>
+            <iq:product id="venu445mm"/>
+            <iq:product id="venusq2"/>
+            <iq:product id="venusq2m"/>
+            <iq:product id="venux1"/>
+            
+            <!-- Vivoactive -->
+            <iq:product id="vivoactive5"/>
+            <iq:product id="vivoactive6"/>
+        </iq:products>
+        <iq:permissions>
+            <iq:uses-permission id="Sensor"/>
+            <iq:uses-permission id="SensorHistory"/>
+            <iq:uses-permission id="UserProfile"/>
+        </iq:permissions>
+        <iq:languages>
+            <iq:language>eng</iq:language>
+        </iq:languages>
+        <iq:barrels/>
+    </iq:application>
+</iq:manifest>

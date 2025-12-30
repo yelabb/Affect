@@ -1,0 +1,5 @@
+project.manifest = manifest.xml
+
+# Base Garmin SDK settings
+base.sourcePath = source
+base.resourcePath = resources

@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<resources>
+    <strings>
+        <string id="AppName">Affect</string>
+        
+        <!-- Calibration Phase -->
+        <string id="CalibrationTitle">Baseline Calibration</string>
+        <string id="CalibrationInstructions">Stay calm and still for 2 minutes</string>
+        <string id="CalibrationProgress">Calibrating...</string>
+        <string id="CalibrationComplete">Calibration Complete!</string>
+        
+        <!-- Emotional Quadrants -->
+        <string id="QuadrantExcited">Excited</string>
+        <string id="QuadrantAngry">Angry</string>
+        <string id="QuadrantCalm">Calm</string>
+        <string id="QuadrantSad">Sad</string>
+        
+        <!-- Axes Labels -->
+        <string id="ArousalLabel">Arousal</string>
+        <string id="ValenceLabel">Valence</string>
+        
+        <!-- Status Messages -->
+        <string id="NoHRData">Waiting for HR data...</string>
+        <string id="InsufficientData">Collecting data...</string>
+    </strings>
+</resources>

@@ -1,0 +1,27 @@
+# Garmin Connect IQ Build Files
+bin/
+build/
+*.prg
+*.iq
+
+# Developer Keys
+developer_key
+*.der
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# dev Files
+*.bat
+*.ps1

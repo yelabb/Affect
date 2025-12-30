@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<layout id="MainLayout">
+    <label id="titleLabel" x="center" y="20" font="Gfx.FONT_SMALL" justification="Gfx.TEXT_JUSTIFY_CENTER"/>
+    <label id="statusLabel" x="center" y="center" font="Gfx.FONT_MEDIUM" justification="Gfx.TEXT_JUSTIFY_CENTER"/>
+</layout>
