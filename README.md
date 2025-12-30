@@ -7,11 +7,10 @@
 A Garmin Connect IQ **widget** that provides real-time biofeedback on your affective state using Russell's Circumplex Model. It analyzes heart rate and heart rate variability (HRV) to map your physiological state onto two dimensions: **Arousal** (energy/activation) and **Valence** (engagement vs stress).
 
 <p align="center">
-  <img width="200" alt="image" src="https://github.com/user-attachments/assets/730213cc-813f-475a-aede-0ab7e3ac04ad" />
-  <img width="200" alt="image" src="https://github.com/user-attachments/assets/d19642b3-f2e6-4c02-8343-9ed64646c2d3" />
-  <img width="200" alt="image" src="https://github.com/user-attachments/assets/ee70a156-38b5-421b-b131-0e2d4f461947" />
-
-
+  <img width="200" alt="image" src="https://github.com/user-attachments/assets/102a1463-c2cc-4f5e-88b9-9acdc2251ce8" />
+  <img width="200" alt="image" src="https://github.com/user-attachments/assets/8e3e6ba3-a7bd-4794-bbcd-3c7e18a99785" />
+  <img width="200" alt="image" src="https://github.com/user-attachments/assets/53568788-41a2-4b16-ad21-6d222c8c7cff" />
+  <img width="200" alt="image" src="https://github.com/user-attachments/assets/95773903-f049-4bb3-8ccb-88b567d68d4d" />
 </p>
 
 ## ✨ Key Features
@@ -623,6 +622,7 @@ Built with the Garmin Connect IQ SDK. Thanks to the Connect IQ developer communi
 Informational/entertainment only. Not medical advice.
 
 **Made with ❤️ for the quantified self community**
+
 
 
 
