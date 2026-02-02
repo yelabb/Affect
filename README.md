@@ -4,6 +4,8 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Garmin%20Connect%20IQ-orange.svg)](https://apps.garmin.com)
 
+https://apps.garmin.com/en-US/apps/65c8dc57-4a42-4ece-9c35-5b5df64f79ee
+
 A Garmin Connect IQ **widget** that provides real-time biofeedback on your affective state using Russell's Circumplex Model. It analyzes heart rate and heart rate variability (HRV) to map your physiological state onto two dimensions: **Arousal** (energy/activation) and **Valence** (engagement vs stress).
 
 <p align="center">
@@ -622,6 +624,7 @@ Built with the Garmin Connect IQ SDK. Thanks to the Connect IQ developer communi
 Informational/entertainment only. Not medical advice.
 
 **Made with ❤️ for the quantified self community**
+
 
 
 
