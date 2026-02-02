@@ -61,9 +61,12 @@ $SDK = "C:\Users\guzzi\AppData\Roaming\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8
 4. Eject and find app in widgets
 
 ### Method 2: Connect IQ Store (Distribution)
-1. Build universal IQ: `monkeyc -o bin/Affect.iq -r ...`
-2. Upload to https://apps.garmin.com/developer
-3. Mark as Beta for private testing
+1. In VS Code, run command: **Monkey C: Export Project** (Ctrl+Shift+P)
+2. Select export destination folder
+3. Go to https://developer.garmin.com/connect-iq/submit-an-app/
+4. Click **"Submit an App"** and upload the generated `.iq` file
+5. Add description, screenshots, and app details
+6. Submit for review (typically 72 hours)
 
 **Important**: The IQ file is for store upload only. For USB sideloading, use PRG files.
 
