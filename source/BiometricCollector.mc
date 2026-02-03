@@ -7,37 +7,32 @@ module Affect {
 
     // Biometric Collector using real heart beat intervals
     // Uses Sensor.registerSensorDataListener() for accurate HRV measurement
-    // Falls back to synthetic data in simulator only
+    // NO synthetic data on real devices - only shows real measurements
     class BiometricCollector {
         
         private var rmssdCalculator;
         private var stabilityAnalyzer;
         
         // Current readings
-        private var heartRate;
+        private var currentHR;
         private var rmssd;
         private var cv;
         
         // State tracking
         private var tickCount;
-        private var usingSynthetic;
         private var listenerRegistered;
-        private var lastRealDataTick;
-        
-        // Configuration
-        private const SYNTHETIC_TIMEOUT = 10;  // Start synthetic after 10 seconds with no real data
+        private var hasReceivedRealData;
         
         function initialize(rmssdCalc, stabilityAnalyz) {
             rmssdCalculator = rmssdCalc;
             stabilityAnalyzer = stabilityAnalyz;
             
-            heartRate = null;
+            currentHR = null;
             rmssd = null;
             cv = null;
             tickCount = 0;
-            usingSynthetic = false;
             listenerRegistered = false;
-            lastRealDataTick = 0;
+            hasReceivedRealData = false;
             
             // Register for real heart beat interval data
             registerHeartBeatListener();
@@ -69,8 +64,11 @@ module Affect {
         function onSensorData(sensorData as Sensor.SensorData) {
             // Get heart rate from sensor info
             var info = Sensor.getInfo();
-            if (info != null && info has :heartRate && info.heartRate != null && info.heartRate > 0) {
-                heartRate = info.heartRate;
+            if (info != null) {
+                var hr = info.heartRate;
+                if (hr != null && hr > 0) {
+                    currentHR = hr;
+                }
             }
             
             // Process real heart beat intervals
@@ -79,8 +77,7 @@ module Affect {
                 if (hrData has :heartBeatIntervals && hrData.heartBeatIntervals != null) {
                     var intervals = hrData.heartBeatIntervals;
                     if (intervals.size() > 0) {
-                        usingSynthetic = false;
-                        lastRealDataTick = tickCount;
+                        hasReceivedRealData = true;
                         
                         // Feed each real RR interval to the calculator
                         for (var i = 0; i < intervals.size(); i++) {
@@ -99,14 +96,9 @@ module Affect {
         function update() {
             tickCount++;
             
-            // If listener not registered, try polling approach
+            // If listener not registered, try polling for HR at minimum
             if (!listenerRegistered) {
                 pollSensorFallback();
-            }
-            
-            // Fallback to synthetic if no real data for a while (simulator)
-            if ((tickCount - lastRealDataTick) > SYNTHETIC_TIMEOUT) {
-                generateSyntheticData();
             }
             
             // Update stability analyzer with current RMSSD
@@ -116,56 +108,44 @@ module Affect {
             }
         }
         
-        // Fallback polling for devices where listener doesn't work
+        // Fallback polling for HR only (no fake RR intervals)
         private function pollSensorFallback() {
             var info = Sensor.getInfo();
             
-            if (info == null) {
-                return;
+            if (info != null) {
+                // Get heart rate only - we won't fake RR intervals
+                var hr = info.heartRate;
+                if (hr != null && hr > 0) {
+                    currentHR = hr;
+                }
             }
-            
-            // Get heart rate at minimum
-            if (info has :heartRate && info.heartRate != null && info.heartRate > 0) {
-                heartRate = info.heartRate;
-            }
-        }
-        
-        // Generate realistic synthetic data for simulator/testing only
-        private function generateSyntheticData() {
-            usingSynthetic = true;
-            
-            // Slowly varying HR between 60-80 bpm
-            var phase = tickCount * 0.05;
-            heartRate = 70 + (Math.sin(phase) * 10).toNumber();
-            
-            // Simulate realistic HRV with larger natural variation
-            // Real HRV has RMSSD typically 20-80ms in healthy adults
-            var baseRR = (60000.0 / heartRate).toNumber();
-            
-            // Use larger variation to simulate real HRV (±50ms gives RMSSD ~40-50ms)
-            var variation = (Math.rand() % 100) - 50;
-            var rrInterval = baseRR + variation;
-            
-            // Feed to calculators
-            rmssdCalculator.addInterval(rrInterval);
-            rmssd = rmssdCalculator.getRMSSD();
         }
         
         // Getters
-        function getHeartRate() { return heartRate; }
+        function getHeartRate() { return currentHR; }
         function getRMSSD() { return rmssd; }
         function getCoefficientOfVariation() { return cv; }
-        function isSynthetic() { return usingSynthetic; }
         function getTickCount() { return tickCount; }
         
         // Check if we have enough data for meaningful display
         function hasData() {
-            return heartRate != null && rmssd != null;
+            return currentHR != null && rmssd != null;
         }
         
         // Check if HR is available
         function hasHeartRate() {
-            return heartRate != null;
+            return currentHR != null;
+        }
+        
+        // Check if we're receiving real HRV data
+        function hasRealHRVData() {
+            return hasReceivedRealData && rmssd != null;
+        }
+        
+        // Check if HRV is unavailable (for showing appropriate message)
+        function isHRVUnavailable() {
+            // After 15 seconds with no real RR data, HRV is unavailable
+            return tickCount > 15 && !hasReceivedRealData;
         }
         
         // Get RMSSD readiness as percentage (0-100)
@@ -180,12 +160,11 @@ module Affect {
         
         // Reset state
         function reset() {
-            heartRate = null;
+            currentHR = null;
             rmssd = null;
             cv = null;
             tickCount = 0;
-            usingSynthetic = false;
-            lastRealDataTick = 0;
+            hasReceivedRealData = false;
             rmssdCalculator.reset();
             stabilityAnalyzer.reset();
         }
