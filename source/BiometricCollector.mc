@@ -1,46 +1,94 @@
 using Toybox.Sensor;
 using Toybox.System;
 using Toybox.Math;
+using Toybox.Lang;
 
 module Affect {
 
-    // Elegant Biometric Collector
-    // Leonardo's principle: Simplicity is the ultimate sophistication
-    // 
-    // One simple approach: Poll Sensor.getInfo() every second
-    // If no real data after timeout, generate synthetic data for testing
+    // Biometric Collector using real heart beat intervals
+    // Uses Sensor.registerSensorDataListener() for accurate HRV measurement
+    // NO synthetic data on real devices - only shows real measurements
     class BiometricCollector {
         
         private var rmssdCalculator;
         private var stabilityAnalyzer;
         
         // Current readings
-        private var heartRate;
+        private var currentHR;
         private var rmssd;
         private var cv;
         
         // State tracking
         private var tickCount;
-        private var usingSynthetic;
-        
-        // Configuration
-        private const SYNTHETIC_TIMEOUT = 8;  // Start synthetic after 8 seconds
+        private var listenerRegistered;
+        private var hasReceivedRealData;
         
         function initialize(rmssdCalc, stabilityAnalyz) {
             rmssdCalculator = rmssdCalc;
             stabilityAnalyzer = stabilityAnalyz;
             
-            heartRate = null;
+            currentHR = null;
             rmssd = null;
             cv = null;
             tickCount = 0;
-            usingSynthetic = false;
+            listenerRegistered = false;
+            hasReceivedRealData = false;
             
-            // Enable heart rate sensor
+            // Register for real heart beat interval data
+            registerHeartBeatListener();
+        }
+        
+        // Register sensor data listener for real RR intervals
+        private function registerHeartBeatListener() {
             try {
+                // Enable heart rate sensor first
                 Sensor.setEnabledSensors([Sensor.SENSOR_HEARTRATE]);
+                
+                // Register for heart beat interval data (real RR intervals!)
+                var options = {
+                    :period => 1,  // 1 second batches
+                    :heartBeatIntervals => {
+                        :enabled => true
+                    }
+                };
+                Sensor.registerSensorDataListener(method(:onSensorData) as Lang.Method, options);
+                listenerRegistered = true;
             } catch (e) {
-                // Sensor might not be available
+                // Sensor listener not available (older device or simulator)
+                listenerRegistered = false;
+            }
+        }
+        
+        // Callback for real heart beat interval data
+        // This receives actual beat-to-beat timing from the optical HR sensor
+        function onSensorData(sensorData as Sensor.SensorData) {
+            // Get heart rate from sensor info
+            var info = Sensor.getInfo();
+            if (info != null) {
+                var hr = info.heartRate;
+                if (hr != null && hr > 0) {
+                    currentHR = hr;
+                }
+            }
+            
+            // Process real heart beat intervals
+            if (sensorData has :heartRateData && sensorData.heartRateData != null) {
+                var hrData = sensorData.heartRateData;
+                if (hrData has :heartBeatIntervals && hrData.heartBeatIntervals != null) {
+                    var intervals = hrData.heartBeatIntervals;
+                    if (intervals.size() > 0) {
+                        hasReceivedRealData = true;
+                        
+                        // Feed each real RR interval to the calculator
+                        for (var i = 0; i < intervals.size(); i++) {
+                            var rrInterval = intervals[i];
+                            if (rrInterval != null && rrInterval > 0) {
+                                rmssdCalculator.addInterval(rrInterval);
+                            }
+                        }
+                        rmssd = rmssdCalculator.getRMSSD();
+                    }
+                }
             }
         }
         
@@ -48,12 +96,9 @@ module Affect {
         function update() {
             tickCount++;
             
-            // Try to get real sensor data
-            var gotRealData = pollSensor();
-            
-            // Fallback to synthetic if no real data
-            if (!gotRealData && tickCount > SYNTHETIC_TIMEOUT) {
-                generateSyntheticData();
+            // If listener not registered, try polling for HR at minimum
+            if (!listenerRegistered) {
+                pollSensorFallback();
             }
             
             // Update stability analyzer with current RMSSD
@@ -63,78 +108,50 @@ module Affect {
             }
         }
         
-        // Poll Sensor.getInfo() - the simplest reliable method
-        private function pollSensor() {
+        // Fallback polling for HR only (no fake RR intervals)
+        private function pollSensorFallback() {
             var info = Sensor.getInfo();
             
-            if (info == null) {
-                return false;
+            if (info != null) {
+                // Get heart rate only - we won't fake RR intervals
+                var hr = info.heartRate;
+                if (hr != null && hr > 0) {
+                    currentHR = hr;
+                }
             }
-            
-            // Get heart rate
-            if (info has :heartRate && info.heartRate != null && info.heartRate > 0) {
-                heartRate = info.heartRate;
-                usingSynthetic = false;
-                
-                // Generate RR interval from HR (approximate but works)
-                // RR = 60000 / HR (in milliseconds)
-                var estimatedRR = (60000.0 / heartRate).toNumber();
-                
-                // Add small natural variation
-                var variation = (Math.rand() % 40) - 20;  // ±20ms
-                var rrInterval = estimatedRR + variation;
-                
-                // Feed to RMSSD calculator
-                rmssdCalculator.addInterval(rrInterval);
-                rmssd = rmssdCalculator.getRMSSD();
-                
-                return true;
-            }
-            
-            return false;
-        }
-        
-        // Generate realistic synthetic data for simulator/testing
-        private function generateSyntheticData() {
-            usingSynthetic = true;
-            
-            // Slowly varying HR between 60-80 bpm
-            var phase = tickCount * 0.05;
-            heartRate = 70 + (Math.sin(phase) * 10).toNumber();
-            
-            // RR interval with realistic HRV variation
-            var baseRR = (60000.0 / heartRate).toNumber();
-            var variation = (Math.rand() % 60) - 30;  // ±30ms natural variation
-            var rrInterval = baseRR + variation;
-            
-            // Feed to calculators
-            rmssdCalculator.addInterval(rrInterval);
-            rmssd = rmssdCalculator.getRMSSD();
         }
         
         // Getters
-        function getHeartRate() { return heartRate; }
+        function getHeartRate() { return currentHR; }
         function getRMSSD() { return rmssd; }
         function getCoefficientOfVariation() { return cv; }
-        function isSynthetic() { return usingSynthetic; }
         function getTickCount() { return tickCount; }
         
         // Check if we have enough data for meaningful display
-        // Requires both HR and valid RMSSD (enough RR intervals collected)
         function hasData() {
-            return heartRate != null && rmssd != null;
+            return currentHR != null && rmssd != null;
         }
         
-        // Check if HR is available (for progress indication)
+        // Check if HR is available
         function hasHeartRate() {
-            return heartRate != null;
+            return currentHR != null;
+        }
+        
+        // Check if we're receiving real HRV data
+        function hasRealHRVData() {
+            return hasReceivedRealData && rmssd != null;
+        }
+        
+        // Check if HRV is unavailable (for showing appropriate message)
+        function isHRVUnavailable() {
+            // After 15 seconds with no real RR data, HRV is unavailable
+            return tickCount > 15 && !hasReceivedRealData;
         }
         
         // Get RMSSD readiness as percentage (0-100)
-        // Based on how many RR intervals collected vs minimum needed
         function getReadinessPercent() {
             var intervalCount = rmssdCalculator.getIntervalCount();
-            var minNeeded = 10;  // MIN_INTERVALS from RMSSDCalculator
+            var minNeeded = 10;
             if (intervalCount >= minNeeded) {
                 return 100;
             }
@@ -143,13 +160,25 @@ module Affect {
         
         // Reset state
         function reset() {
-            heartRate = null;
+            currentHR = null;
             rmssd = null;
             cv = null;
             tickCount = 0;
-            usingSynthetic = false;
+            hasReceivedRealData = false;
             rmssdCalculator.reset();
             stabilityAnalyzer.reset();
+        }
+        
+        // Clean up sensor listener
+        function cleanup() {
+            if (listenerRegistered) {
+                try {
+                    Sensor.unregisterSensorDataListener();
+                } catch (e) {
+                    // Ignore cleanup errors
+                }
+                listenerRegistered = false;
+            }
         }
     }
 }
